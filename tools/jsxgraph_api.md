@@ -19,7 +19,9 @@ All elements are created via `board.create('elementType', params, attributes)`.
 | `arc` | `[center, p1, p2]` | Circular arc |
 | `sector` | `[center, p1, p2]` | Circular sector |
 | `angle` | `[p1, vertex, p2]` | Angle marker |
-| `perpendicular` | `[line, point]` | Line perpendicular to `line` through `point` |
+| `perpendicular` | `[line, point]` | **Infinite line** perpendicular to `line` through `point` (NOT a segment!) |
+| `perpendicularpoint` | `[point, line]` | Foot of perpendicular from `point` to `line` (the closest point on line) |
+| `perpendicularsegment` | `[line, point]` | Segment from `point` to its foot on `line` |
 | `parallel` | `[line, point]` | Line parallel to `line` through `point` |
 | `bisector` | `[p1, vertex, p2]` | Angle bisector |
 | `tangent` | `[curve, point]` | Tangent line |
@@ -36,6 +38,7 @@ All elements are created via `board.create('elementType', params, attributes)`.
 |----------|---------------|
 | `perpendicularbisector` | Combine `midpoint` + `perpendicular` (see below) |
 | `perpendicularBisector` | Same — does not exist |
+| Using `perpendicular` to draw a distance/radius line | `perpendicular` draws an **infinite line**, not a segment. Use `perpendicularsegment` or combine `perpendicularpoint` + `segment` (see below) |
 
 ## Perpendicular Bisector (correct pattern)
 
@@ -46,6 +49,22 @@ var line_AB = board.create('line', [A, B], { visible: false });
 board.create('perpendicular', [line_AB, mid], {
     strokeColor: '#764ba2', strokeWidth: 1.5, dash: 2
 });
+```
+
+## Perpendicular Distance / Inradius (correct pattern)
+
+To draw the perpendicular distance from a point to a line (e.g., inradius from Incenter to a side):
+
+```javascript
+// WRONG: board.create('perpendicular', [line, I]) — draws an INFINITE line!
+// CORRECT: use perpendicularsegment for a finite segment from point to foot
+var lAB = board.create('line', [A, B], { visible: false });
+board.create('perpendicularsegment', [lAB, I], {
+    strokeColor: '#e74c3c', strokeWidth: 2, dash: 3
+});
+// Or manually: find foot point, then draw segment
+var foot = board.create('perpendicularpoint', [I, lAB], { visible: false });
+board.create('segment', [I, foot], { strokeColor: '#e74c3c', strokeWidth: 2, dash: 3 });
 ```
 
 ## Common Attributes
