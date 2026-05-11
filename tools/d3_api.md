@@ -1,6 +1,6 @@
 # D3.js API Reference for Diagram Rendering (v7)
 
-Use D3 for biology/natural science diagrams: cell cross-sections, vascular bundles, phylogenetic trees, organ schematics.
+Use D3 for biology/natural science/physics phenomena diagrams: cell cross-sections, vascular bundles, phylogenetic trees, organ schematics, energy diagrams, bouncing ball states, force arrows, pendulums, circuit schematics, wave propagation.
 
 ## Setup Pattern
 
@@ -116,3 +116,47 @@ svg.append('text')
    .attr('paint-order', 'stroke fill')
    .attr('fill', '#333');
 ```
+
+## Animation with D3 Transitions
+
+Use D3's built-in `.transition()` for animations. Labels and their parent elements update together in the same transition — this prevents labels from drifting away from the element they describe.
+
+```javascript
+// Pendulum example: bob AND its labels move together
+function swing(angle) {
+    const x = pivotX + Math.sin(angle) * length;
+    const y = pivotY + Math.cos(angle) * length;
+
+    // Bob and string update together
+    svg.select('#string').transition().duration(500)
+       .attr('x2', x).attr('y2', y);
+    svg.select('#bob').transition().duration(500)
+       .attr('cx', x).attr('cy', y);
+
+    // Labels follow in the SAME transition
+    svg.select('#length-label').transition().duration(500)
+       .attr('x', (pivotX + x) / 2 + 10)
+       .attr('y', (pivotY + y) / 2);
+}
+```
+
+Key rule: every label that annotates a moving element must be in the same `.transition()` call, so positions update atomically. Static labels (axis titles, legends) stay fixed.
+
+## Physics Simulation on Screen Coordinates
+
+When simulating physics (pendulums, projectiles, springs) using pixel coordinates, normalize the constants instead of using real-world SI values. Screen pixels are not meters — using `g = 9.8` with `L = 240` pixels gives a 31-second period, far too slow for a teaching animation.
+
+```javascript
+// BAD: real SI constants with pixel lengths → period ≈ 31s
+var g = 9.8;   // m/s²
+var L = 240;   // pixels (NOT meters!)
+var alpha = -(g / L) * Math.sin(angle);  // way too slow
+
+// GOOD: normalized ratio → period ≈ 3s, visually clear
+var gOverL = 4;  // tuned for ~3s period: T = 2π/√(gOverL) ≈ 3.14s
+var alpha = -gOverL * Math.sin(angle);
+```
+
+Target a period of 2–4 seconds so the viewer sees multiple complete cycles within the narration time.
+
+Animation duration: use `requestAnimationFrame` without a hard frame limit — let it run for the full slide duration. If you need a stop condition, base it on elapsed real time (e.g., `Date.now() - startTime < durationMs`), not a fixed frame count. A hard `frame < 600` cap stops the animation at ~10 seconds regardless of how long the slide plays.
