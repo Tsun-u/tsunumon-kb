@@ -160,4 +160,6 @@ var alpha = -gOverL * Math.sin(angle);
 
 Target a period of 2–4 seconds so the viewer sees multiple complete cycles within the narration time.
 
+**Pixel lengths must reflect real-world ratios**: When comparing two objects side by side (e.g., short vs long pendulum, small vs large cell), their pixel sizes must be proportional to the stated real-world values. If one string is L=0.5m and another is L=2m, the pixel lengths should be roughly 1:4 (e.g., 60px vs 240px). Equal-looking lengths with different labels mislead the viewer — the visual comparison IS the teaching point.
+
 Animation duration: use `requestAnimationFrame` without a hard frame limit — let it run for the full slide duration. If you need a stop condition, base it on elapsed real time (e.g., `Date.now() - startTime < durationMs`), not a fixed frame count. A hard `frame < 600` cap stops the animation at ~10 seconds regardless of how long the slide plays.
