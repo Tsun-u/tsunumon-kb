@@ -107,6 +107,7 @@ All `<text>` elements MUST have:
 - `font-size`: 14-24px
 - `stroke` + `paint-order="stroke fill"` for outline
 - `text-anchor` for alignment
+- **Z-order**: append text AFTER decorative elements (dots, circles, arrows) so text renders on top. SVG renders in document order — later elements appear above earlier ones. Labels must never be hidden behind decorative shapes.
 
 ```javascript
 svg.append('text')
