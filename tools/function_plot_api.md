@@ -88,7 +88,9 @@ functionPlot({
 
 ## Annotations (key points, vertex, intercepts)
 
-function-plot supports annotations for marking specific points:
+**Grid default style**: function-plot's grid lines are `rgb(238,238,238)` (light gray), 1px. Annotation lines use the SAME default style — making them invisible against the grid. Always override annotation color and width so they stand out.
+
+function-plot supports annotations for marking specific points. **Always add a visible data line** alongside annotations, since annotation lines blend into the grid:
 
 ```javascript
 functionPlot({
@@ -101,10 +103,29 @@ functionPlot({
         { fn: '-5*x^2 + 20*x', color: '#e74c3c', graphType: 'polyline' }
     ],
     annotations: [
-        { x: 2, text: 'Vertex (2, 20)' },      // Vertical line at x=2
-        { y: 20, text: 'Max height = 20m' }     // Horizontal line at y=20
+        { x: 2, text: 'Vertex (2, 20)' },      // Vertical line at x=2 (WARNING: default color is invisible against grid!)
+        { y: 20, text: 'Max height = 20m' }     // Horizontal line at y=20 (same warning)
     ]
 });
+```
+
+**Making annotations visible**: Since annotation lines are invisible against the grid, add a matching data entry as a visible reference line whenever you use an annotation:
+
+```javascript
+// BAD: annotation line invisible (same color as grid)
+annotations: [{ x: 2, text: 'Axis of symmetry' }]
+
+// GOOD: add a visible dashed data line alongside the annotation
+data: [
+    { fn: 'main curve...', color: '#e74c3c' },
+    { fn: '2', color: '#ff9800', graphType: 'polyline', attr: { 'stroke-dasharray': '5,5', 'stroke-width': 2 } }  // visible vertical reference
+],
+annotations: [{ x: 2, text: 'Axis of symmetry' }]
+```
+
+For vertical reference lines, use a constant x-function: `fn: '2'` won't work (that's y=2). Instead, use the annotation for the line and add a colored data line using `fnType: 'points'` with two points at the same x but different y values:
+```javascript
+{ points: [[2, -2], [2, 22]], fnType: 'points', graphType: 'polyline', color: '#ff9800' }
 ```
 
 ## Multiple Functions
