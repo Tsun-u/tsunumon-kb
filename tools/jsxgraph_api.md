@@ -112,6 +112,21 @@ board.create('point', [0, 1],      { name: 'C', label: { offset: [10, -15] } });
 
 Place labels in different directions (top-right, top-left, bottom) relative to their points. For unit circle diagrams with cardinal points (0°, 90°, 180°, 270°), offset labels outward from the circle center.
 
+## Common Syntax Pitfalls
+
+Point coordinates use a **flat** array — do NOT nest:
+```javascript
+board.create('point', [0, 0], { name: 'O' });        // ✅ correct
+board.create('point', [[0, 0]], { name: 'O' });       // ❌ silent error — kills all subsequent elements
+```
+
+Text content goes **inside** the coordinate array as the third element:
+```javascript
+board.create('text', [x, y, 'label'], { fontSize: 16 });              // ✅ correct
+board.create('text', [x, y, function(){ return val; }], { });          // ✅ correct (dynamic)
+board.create('text', [x, y], 'label', { fontSize: 16 });              // ❌ content outside array
+```
+
 ## Slider Auto-Play Animation
 
 Viewers watch a video — they cannot drag the slider. Every slider MUST have a `requestAnimationFrame` auto-play loop with a separate accumulator variable (do NOT read back from `slider.Value()` — snapWidth rounding creates an infinite loop where the value never advances).
