@@ -112,6 +112,16 @@ ctx.fillText('Label', x, y);
 
 Or use SVG mode and append `<text>` elements with D3/DOM API (with stroke outline rules: 14-24px, paint-order).
 
+### Canvas Text Layout Rules
+
+Canvas text is positioned by absolute pixel coordinates — overlapping text is invisible until rendered. Follow these rules:
+
+1. **Minimum 24px vertical gap** between any two `fillText` calls. Text at y=48 and y=52 will overlap — space them at least 24px apart.
+2. **Annotations go outside shapes** — place labels with a 20px+ margin from the nearest circle/rectangle edge. Text sitting on a shape border becomes unreadable.
+3. **Keep text 30px+ from canvas edges** — labels at x=10 or y=canvas.height-5 get clipped or crowd the frame.
+4. **One label position per element** — if a node needs both a title and a subtitle, stack them vertically with 16px gap (e.g. y and y+16), not crammed into 4px.
+5. **Verify before drawing**: before writing coordinates, sketch the layout mentally — list every `fillText` call with its (x, y) and confirm no two are within 24px vertically at similar x positions.
+
 ## Neural Network Example
 
 ```javascript
