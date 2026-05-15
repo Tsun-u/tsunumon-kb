@@ -116,42 +116,45 @@ Place labels in different directions (top-right, top-left, bottom) relative to t
 
 Viewers watch a video — they cannot drag the slider. Every slider MUST have a `setInterval` auto-play loop with a separate accumulator variable (do NOT read back from `slider.Value()` — snapWidth rounding creates an infinite loop where the value never advances).
 
-Working example — unit circle point rotating via slider:
+Working example — unit circle point rotating via slider. The auto-play code MUST be inside the same `DOMContentLoaded` callback as the board/slider init (same scope):
 
-```javascript
-var board = JXG.JSXGraph.initBoard('angle-anim', {
+```html
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  if (typeof JXG === 'undefined') return;
+  var board = JXG.JSXGraph.initBoard('angle-anim', {
     boundingbox: [-1.7, 1.7, 1.7, -1.7],
     showNavigation: false, showCopyright: false, keepaspectratio: true, axis: false
-});
-board.create('line', [[-1.6, 0], [1.6, 0]], { strokeColor: '#ddd', strokeWidth: 1.5, straightFirst: false, straightLast: false, lastArrow: true });
-board.create('line', [[0, -1.6], [0, 1.6]], { strokeColor: '#ddd', strokeWidth: 1.5, straightFirst: false, straightLast: false, lastArrow: true });
-var center = board.create('point', [0, 0], { name: '', size: 5, color: '#e74c3c', fixed: true, label: { visible: false } });
-board.create('circle', [center, 1], { strokeColor: '#2196f3', strokeWidth: 2.5, fillColor: 'rgba(33,150,243,0.04)' });
-var Pstart = board.create('point', [1, 0], { name: '', size: 0, fixed: true, label: { visible: false } });
-board.create('segment', [center, Pstart], { strokeColor: '#ddd', strokeWidth: 1, dash: 2 });
+  });
+  board.create('line', [[-1.6, 0], [1.6, 0]], { strokeColor: '#ddd', strokeWidth: 1.5, straightFirst: false, straightLast: false, lastArrow: true });
+  board.create('line', [[0, -1.6], [0, 1.6]], { strokeColor: '#ddd', strokeWidth: 1.5, straightFirst: false, straightLast: false, lastArrow: true });
+  var center = board.create('point', [0, 0], { name: '', size: 5, color: '#e74c3c', fixed: true, label: { visible: false } });
+  board.create('circle', [center, 1], { strokeColor: '#2196f3', strokeWidth: 2.5, fillColor: 'rgba(33,150,243,0.04)' });
+  var Pstart = board.create('point', [1, 0], { name: '', size: 0, fixed: true, label: { visible: false } });
+  board.create('segment', [center, Pstart], { strokeColor: '#ddd', strokeWidth: 1, dash: 2 });
 
-// Slider in radians (0 to 2π)
-var angleVal = board.create('slider', [[-1.4, -1.5], [1.4, -1.5], [0, 0, 2 * Math.PI]], {
+  // Slider in radians (0 to 2π)
+  var angleVal = board.create('slider', [[-1.4, -1.5], [1.4, -1.5], [0, 0, 2 * Math.PI]], {
     name: 'θ', snapWidth: 0.01,
     label: { fontSize: 16, cssStyle: 'font-weight:700;' },
     baseline: { strokeColor: '#ccc' },
     highline: { strokeColor: '#ff9800', strokeWidth: 3 },
     face: 'o', size: 7, fillColor: '#ff9800', strokeColor: '#e65100'
-});
+  });
 
-// Dynamic point driven by slider value
-var Pdyn = board.create('point', [
+  // Dynamic point driven by slider value
+  var Pdyn = board.create('point', [
     function() { return Math.cos(angleVal.Value()); },
     function() { return Math.sin(angleVal.Value()); }
-], { name: 'P', size: 9, color: '#e74c3c', fixed: false, label: {
+  ], { name: 'P', size: 9, color: '#e74c3c', fixed: false, label: {
     fontSize: 18, fontWeight: 'bold', offset: [10, 4],
     cssStyle: 'color:#e74c3c;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;'
-}});
-board.create('segment', [center, Pdyn], { strokeColor: '#4caf50', strokeWidth: 3 });
-board.create('arc', [center, Pstart, Pdyn], { strokeColor: '#ff9800', strokeWidth: 3, lastArrow: true });
+  }});
+  board.create('segment', [center, Pdyn], { strokeColor: '#4caf50', strokeWidth: 3 });
+  board.create('arc', [center, Pstart, Pdyn], { strokeColor: '#ff9800', strokeWidth: 3, lastArrow: true });
 
-// Dynamic coordinate label
-board.create('text', [
+  // Dynamic coordinate label
+  board.create('text', [
     function() { return Math.cos(angleVal.Value()) + 0.12; },
     function() { return Math.sin(angleVal.Value()) + 0.18; },
     function() {
@@ -159,20 +162,21 @@ board.create('text', [
       var y = Math.sin(angleVal.Value()).toFixed(2);
       return '(' + x + ', ' + y + ')';
     }
-], { fontSize: 16, color: '#1565c0',
+  ], { fontSize: 16, color: '#1565c0',
     cssStyle: 'font-weight:700;text-shadow:-1px -1px 0 #fff,1px -1px 0 #fff,-1px 1px 0 #fff,1px 1px 0 #fff;' });
 
-// Auto-play loop — REQUIRED for video playback
-// Uses setInterval (not requestAnimationFrame — rAF does not fire in headless rendering).
-// Uses a separate accumulator `t` (not slider.Value()) to avoid snapWidth rounding loop.
-var t = 0;
-var dt = 0.018;
-setInterval(function() {
+  // Auto-play loop — REQUIRED for video playback
+  // Uses a separate accumulator `t` (not slider.Value()) to avoid snapWidth rounding loop.
+  var t = 0;
+  var dt = 0.018;
+  setInterval(function() {
     t += dt;
     if (t > 2 * Math.PI) t = 0;
     angleVal.setValue(t);
     board.update();
-}, 16);
+  }, 16);
+});
+</script>
 ```
 
 Key rules:
