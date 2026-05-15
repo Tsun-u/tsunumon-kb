@@ -114,7 +114,7 @@ Place labels in different directions (top-right, top-left, bottom) relative to t
 
 ## Slider Auto-Play Animation
 
-Viewers watch a video — they cannot drag the slider. Every slider MUST have a `setInterval` auto-play loop with a separate accumulator variable (do NOT read back from `slider.Value()` — snapWidth rounding creates an infinite loop where the value never advances).
+Viewers watch a video — they cannot drag the slider. Every slider MUST have a `requestAnimationFrame` auto-play loop with a separate accumulator variable (do NOT read back from `slider.Value()` — snapWidth rounding creates an infinite loop where the value never advances).
 
 Working example — unit circle point rotating via slider. The auto-play code MUST be inside the same `DOMContentLoaded` callback as the board/slider init (same scope):
 
@@ -169,18 +169,20 @@ document.addEventListener('DOMContentLoaded', function() {
   // Uses a separate accumulator `t` (not slider.Value()) to avoid snapWidth rounding loop.
   var t = 0;
   var dt = 0.018;
-  setInterval(function() {
+  function animate() {
     t += dt;
     if (t > 2 * Math.PI) t = 0;
     angleVal.setValue(t);
     board.update();
-  }, 16);
+    requestAnimationFrame(animate);
+  }
+  animate();
 });
 </script>
 ```
 
 Key rules:
-- Use `setInterval(fn, 16)` with a separate accumulator variable `t` — never `requestAnimationFrame` (doesn't fire in headless rendering) and never read back from `slider.Value()` (snapWidth rounding traps the value)
+- Use `requestAnimationFrame` with a separate accumulator variable `t` — never read back from `slider.Value()` (snapWidth rounding traps the value)
 - Use radians for angle sliders (0 to 2π), not degrees — avoids coordinate bugs with dependent objects
 - Keep `dt` small (0.01–0.02) for smooth animation
 - All dependent points/text must use `function()` closures referencing `slider.Value()`
