@@ -127,6 +127,15 @@ board.create('text', [x, y, function(){ return val; }], { });          // ✅ co
 board.create('text', [x, y], 'label', { fontSize: 16 });              // ❌ content outside array
 ```
 
+When computing coordinates from array variables, **pre-compute into simple variables** first — array indexing like `p[0]` inside `board.create` brackets causes parsing issues:
+```javascript
+var labelX = p30[0] * 1.28;
+var labelY = p30[1] * 1.28;
+board.create('text', [labelX, labelY, 'π/6'], { fontSize: 13 });      // ✅ clean
+board.create('text', [p30[0]*1.28, p30[1]*1.28, 'π/6'], { });         // ⚠️ works but fragile
+board.create('text', [p30[0]*1.28, p30[1]*1.28], 'π/6', { });         // ❌ content outside + nested brackets
+```
+
 ## Slider Auto-Play Animation
 
 Viewers watch a video — they cannot drag the slider. Every slider MUST have a `requestAnimationFrame` auto-play loop with a separate accumulator variable (do NOT read back from `slider.Value()` — snapWidth rounding creates an infinite loop where the value never advances).
